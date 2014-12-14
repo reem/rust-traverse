@@ -1,10 +1,13 @@
 [package]
 
 name = "intrusive"
-version = "0.0.2"
+version = "0.0.3"
 authors = ["Jonathan Reem <jonathan.reem@gmail.com>"]
 repository = "https://github.com/reem/rust-intrusive.git"
 description = "Proof-of-concept trait for intrusive iterators."
 readme = "README.md"
 license = "MIT"
+
+[dev-dependencies]
+stainless = "*"
 

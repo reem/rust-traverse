@@ -1,64 +1,48 @@
 use {IntrusiveIterator, FromIntrusiveIterator};
 
 /// Extension methods for Intrusive Iterators
-pub trait IntrusiveIteratorExt<T> {
-    /// Get another intrusive iterator with its contents modified by the closure.
-    fn map<O, F: FnMut(T) -> O>(self, F) -> Map<Self, F>;
-    fn filter<F: FnMut(&T) -> bool>(self, f: F) -> Filter<Self, F>;
-    fn filter_map<O, F: FnMut(T) -> Option<O>>(self, F) -> FilterMap<Self, F>;
-    fn enumerate(self) -> Enumerate<Self>;
-    fn skip(self, uint) -> Skip<Self>;
-    fn take(self, uint) -> Take<Self>;
-    fn skip_while<F: FnMut(T) -> bool>(self, F) -> SkipWhile<Self, F>;
-    fn take_while<F: FnMut(T) -> bool>(self, F) -> TakeWhile<Self, F>;
-    fn inspect<F: FnMut(&T)>(self, F) -> Inspect<Self, F>;
-    fn flat_map<O, U: Iterator<O>, F: FnMut(T) -> U>(self, F) -> FlatMap<Self, F>;
-    fn chain<O: IntrusiveIterator<T>>(self, O) -> Chain<Self, O>;
-    fn collect<D: FromIntrusiveIterator<T>>(self) -> D;
-}
-
-impl<T, I: IntrusiveIterator<T>> IntrusiveIteratorExt<T> for I {
-    fn map<O, F: FnMut(T) -> O>(self, f: F) -> Map<I, F> {
+pub trait IntrusiveIteratorExt<T> : IntrusiveIterator<T> {
+    fn map<O, F: FnMut(T) -> O>(self, f: F) -> Map<Self, F> {
         Map { iter: self, closure: f }
     }
 
-    fn filter<F: FnMut(&T) -> bool>(self, pred: F) -> Filter<I, F> {
+    fn filter<F: FnMut(&T) -> bool>(self, pred: F) -> Filter<Self, F> {
         Filter { iter: self, predicate: pred }
     }
 
-    fn filter_map<O, F: FnMut(T) -> Option<O>>(self, pred: F) -> FilterMap<I, F> {
+    fn filter_map<O, F: FnMut(T) -> Option<O>>(self, pred: F) -> FilterMap<Self, F> {
         FilterMap { iter: self, predicate: pred }
     }
 
-    fn enumerate(self) -> Enumerate<I> {
+    fn enumerate(self) -> Enumerate<Self> {
         Enumerate(self)
     }
 
-    fn skip(self, n: uint) -> Skip<I> {
+    fn skip(self, n: uint) -> Skip<Self> {
         Skip { iter: self, n: n }
     }
 
-    fn take(self, n: uint) -> Take<I> {
+    fn take(self, n: uint) -> Take<Self> {
         Take { iter: self, n: n }
     }
 
-    fn skip_while<F: FnMut(T) -> bool>(self, pred: F) -> SkipWhile<I, F> {
+    fn skip_while<F: FnMut(T) -> bool>(self, pred: F) -> SkipWhile<Self, F> {
         SkipWhile { iter: self, predicate: pred }
     }
 
-    fn take_while<F: FnMut(T) -> bool>(self, pred: F) -> TakeWhile<I, F> {
+    fn take_while<F: FnMut(T) -> bool>(self, pred: F) -> TakeWhile<Self, F> {
         TakeWhile { iter: self, predicate: pred }
     }
 
-    fn inspect<F: FnMut(&T)>(self, f: F) -> Inspect<I, F> {
+    fn inspect<F: FnMut(&T)>(self, f: F) -> Inspect<Self, F> {
         Inspect { iter: self, closure: f }
     }
 
-    fn flat_map<O, U: Iterator<O>, F: FnMut(T) -> U>(self, f: F) -> FlatMap<I, F> {
+    fn flat_map<O, U: Iterator<O>, F: FnMut(T) -> U>(self, f: F) -> FlatMap<Self, F> {
         FlatMap { iter: self, producer: f }
     }
 
-    fn chain<O: IntrusiveIterator<T>>(self, other: O) -> Chain<I, O> {
+    fn chain<O: IntrusiveIterator<T>>(self, other: O) -> Chain<Self, O> {
         Chain { one: self, two: other }
     }
 
@@ -66,6 +50,8 @@ impl<T, I: IntrusiveIterator<T>> IntrusiveIteratorExt<T> for I {
         FromIntrusiveIterator::collect(self)
     }
 }
+
+impl<T, I: IntrusiveIterator<T>> IntrusiveIteratorExt<T> for I {}
 
 /// An IntrusiveIterator that maps over the contents of
 /// another IntrusiveIterator.

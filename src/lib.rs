@@ -1,7 +1,13 @@
-#![feature(unboxed_closures, globs)]
+#![feature(unboxed_closures, globs, phase)]
 //#![deny(missing_docs, warnings)]
 
 //! Proof-of-concept trait for intrusive iterators.
+
+#[cfg(test)] #[phase(plugin)]
+extern crate stainless;
+
+#[cfg(test)]
+extern crate test;
 
 pub use ext::{IntrusiveIteratorExt,
               Map, Filter, FilterMap,
@@ -42,4 +48,5 @@ impl<T, I: Iterator<T>> IntrusiveIterator<T> for Intrusive<I> {
 }
 
 mod ext;
+mod impls;
 

@@ -54,7 +54,7 @@ impl<'a, T> IntrusiveIterator<&'a mut T> for &'a mut [T] {
 impl<T> FromIntrusiveIterator<T> for Vec<T> {
     fn collect<I: IntrusiveIterator<T>>(iter: I) -> Vec<T> {
         let mut vec = Vec::new();
-        iter.traverse(|&mut: elem| { vec.push(elem); false });
+        iter.iterate(|&mut: elem| vec.push(elem));
         vec
     }
 }
@@ -83,7 +83,7 @@ mod test {
 
             let data = Vec::from_fn(10000, |_| random::<uint>());
             bench.iter(|| {
-                data.as_slice().traverse(|&: x| { ::test::black_box(x); false });
+                data.as_slice().iterate(|&: x| ::test::black_box(x));
             });
         }
 

@@ -18,7 +18,16 @@ pub use ext::{IntrusiveIteratorExt,
 /// Intrusive Iterators.
 pub trait IntrusiveIterator<T> {
     /// Run this Iterator using the provided closure.
+    ///
+    /// Return false from the closure to end the iteration.
     fn traverse<F: FnMut(T) -> bool>(self, F);
+
+    /// Run this Iterator using the provided closure.
+    ///
+    /// This is a utility method for non-cancelling iterations.
+    fn iterate<F: FnMut(T)>(self, mut f: F) {
+        self.traverse(|&mut: t: T| { f(t); false })
+    }
 }
 
 pub trait FromIntrusiveIterator<T> {

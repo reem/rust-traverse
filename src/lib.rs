@@ -58,4 +58,4 @@ impl<T, I: Iterator<T>> IntrusiveIterator<T> for Intrusive<I> {
 
 mod ext;
 mod impls;
-
+pub mod utils;

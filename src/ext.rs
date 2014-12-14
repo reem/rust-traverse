@@ -46,6 +46,12 @@ pub trait IntrusiveIteratorExt<T> : IntrusiveIterator<T> {
         Chain { one: self, two: other }
     }
 
+    fn count(self) -> uint {
+        let mut count = 0;
+        self.iterate(|_| { count += 1; });
+        count
+    }
+
     fn collect<D: FromIntrusiveIterator<T>>(self) -> D {
         FromIntrusiveIterator::collect(self)
     }

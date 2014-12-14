@@ -26,6 +26,31 @@ impl<'a, T> IntrusiveIterator<&'a T> for &'a [T] {
     }
 }
 
+impl<'a, T> IntrusiveIterator<&'a mut T> for &'a mut [T] {
+    #[inline]
+    fn traverse<F: FnMut(&'a mut T) -> bool>(self, mut f: F) {
+        unsafe {
+            let slice = mem::transmute::<&'a mut [T], raw::Slice<T>>(self);
+
+            let is_zero_size = mem::size_of::<T>() == 0;
+
+            if is_zero_size {
+                for _ in range(0, slice.len) {
+                    // Just give some pointer, doesn't matter what.
+                    if f(mem::transmute(1u)) { break }
+                }
+            } else {
+                let mut current = slice.data;
+                let end = slice.data.offset(slice.len as int);
+                while current != end {
+                    if f(mem::transmute(current)) { break }
+                    current = current.offset(1);
+                }
+            }
+        }
+    }
+}
+
 impl<T> FromIntrusiveIterator<T> for Vec<T> {
     fn collect<I: IntrusiveIterator<T>>(iter: I) -> Vec<T> {
         let mut vec = Vec::new();

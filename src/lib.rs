@@ -6,7 +6,7 @@
 /// Intrusive Iterators.
 pub trait IntrusiveIterator<T> {
     /// Run this Iterator using the provided closure.
-    fn apply<F: FnMut(T)>(self, F);
+    fn traverse<F: FnMut(T) -> bool>(self, F);
 }
 
 /// Extension methods for Intrusive Iterators
@@ -29,9 +29,9 @@ pub struct Map<T, O, I: IntrusiveIterator<T>, F: FnMut(T) -> O> {
 }
 
 impl<T, O, I: IntrusiveIterator<T>, F: FnMut(T) -> O> IntrusiveIterator<O> for Map<T, O, I, F> {
-    fn apply<F1: FnMut(O)>(self, mut f: F1) {
+    fn traverse<F1: FnMut(O) -> bool>(self, mut f: F1) {
         let mut closure = self.closure;
-        self.iter.apply(move |t: T| {
+        self.iter.traverse(move |t: T| {
             f(closure(t))
         });
     }

@@ -3,8 +3,7 @@ use std::num::Int;
 
 /// An infinite iterator starting at `start` and advancing by `step` with each
 /// iteration
-#[deriving(Clone)]
-#[unstable = "may be renamed"]
+#[deriving(Copy, Clone)]
 pub struct Counter<A> {
     /// The current state the counter is at (next value to be yielded)
     start: A,
@@ -12,16 +11,12 @@ pub struct Counter<A> {
     step: A,
 }
 
-impl<A:Copy> Copy for Counter<A> {}
-
 /// Creates a new counter with the specified start/step
 #[inline]
-#[unstable = "may be renamed"]
 pub fn count<A>(start: A, step: A) -> Counter<A> {
     Counter{ start: start, step: step }
 }
 
-#[unstable = "trait is unstable"]
 impl<A: Add<A, A> + Clone> IntrusiveIterator<A> for Counter<A> {
     #[inline]
     fn traverse<F: FnMut(A) -> bool>(self, mut f: F) {
@@ -35,14 +30,11 @@ impl<A: Add<A, A> + Clone> IntrusiveIterator<A> for Counter<A> {
 }
 
 /// An iterator over the range [start, stop)
-#[deriving(Clone)]
-#[unstable = "may be refactored due to numerics reform or ops reform"]
+#[deriving(Copy, Clone)]
 pub struct Range<A> {
     start: A,
     stop: A,
 }
-
-impl<A:Copy> Copy for Range<A> {}
 
 /// Returns an iterator over the given range [start, stop) (that is, starting
 /// at start (inclusive), and ending at stop (exclusive)).
@@ -66,7 +58,7 @@ impl<A: Int + ToPrimitive> IntrusiveIterator<A> for Range<A> {
 }
 
 /// An iterator over the range [start, stop]
-#[deriving(Clone)]
+#[deriving(Copy, Clone)]
 pub struct RangeInclusive<A> {
     start: A,
     stop: A,
@@ -92,7 +84,7 @@ impl<A: Int + ToPrimitive> IntrusiveIterator<A> for RangeInclusive<A> {
 }
 
 /// An iterator over the range [start, stop) by `step`. It handles overflow by stopping.
-#[deriving(Clone)]
+#[deriving(Copy, Clone)]
 pub struct RangeStep<A> {
     start: A,
     stop: A,
@@ -129,8 +121,7 @@ impl<A: Int> IntrusiveIterator<A> for RangeStep<A> {
 }
 
 /// An iterator over the range [start, stop] by `step`. It handles overflow by stopping.
-#[deriving(Clone)]
-#[unstable = "may be refactored due to numerics reform or ops reform"]
+#[deriving(Copy, Clone)]
 pub struct RangeStepInclusive<A> {
     start: A,
     stop: A,
@@ -173,7 +164,7 @@ pub fn repeat<T: Clone>(elt: T) -> Repeat<T> {
 }
 
 /// An iterator that repeats an element endlessly
-#[deriving(Clone)]
+#[deriving(Copy, Clone)]
 pub struct Repeat<A> {
     element: A
 }
@@ -189,6 +180,7 @@ impl<A: Clone> IntrusiveIterator<A> for Repeat<A> {
 
 /// An iterator that repeatedly applies a given function, starting
 /// from a given seed value.
+#[deriving(Copy, Clone)]
 pub struct Iterate<T, F> {
     seed: T,
     iter: F,
@@ -196,7 +188,7 @@ pub struct Iterate<T, F> {
 
 /// Create a new iterator that produces an infinite sequence of
 /// repeated applications of the given function `f`.
-#[experimental]
+#[inline]
 pub fn iterate<T, F>(seed: T, f: F) -> Iterate<T, F> where
     T: Clone,
     F: FnMut(T) -> T
@@ -208,6 +200,7 @@ impl<A, I> IntrusiveIterator<A> for Iterate<A, I> where
     A: Clone,
     I: FnMut(A) -> A,
 {
+    #[inline]
     fn traverse<F: FnMut(A) -> bool>(mut self, mut f: F) {
         if !f(self.seed.clone()) {
             let mut cur = self.seed;

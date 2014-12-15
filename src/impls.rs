@@ -1,9 +1,9 @@
 use std::{mem, raw};
-use {IntrusiveIterator, FromIntrusiveIterator};
+use {Traversal, FromTraversal};
 
-impl<'a, T> IntrusiveIterator<&'a T> for &'a [T] {
+impl<'a, T> Traversal<&'a T> for &'a [T] {
     #[inline]
-    fn traverse<F: FnMut(&'a T) -> bool>(self, mut f: F) {
+    fn foreach<F: FnMut(&'a T) -> bool>(self, mut f: F) {
         unsafe {
             let slice = mem::transmute::<&'a [T], raw::Slice<T>>(self);
 
@@ -26,9 +26,9 @@ impl<'a, T> IntrusiveIterator<&'a T> for &'a [T] {
     }
 }
 
-impl<'a, T> IntrusiveIterator<&'a mut T> for &'a mut [T] {
+impl<'a, T> Traversal<&'a mut T> for &'a mut [T] {
     #[inline]
-    fn traverse<F: FnMut(&'a mut T) -> bool>(self, mut f: F) {
+    fn foreach<F: FnMut(&'a mut T) -> bool>(self, mut f: F) {
         unsafe {
             let slice = mem::transmute::<&'a mut [T], raw::Slice<T>>(self);
 
@@ -51,10 +51,10 @@ impl<'a, T> IntrusiveIterator<&'a mut T> for &'a mut [T] {
     }
 }
 
-impl<T> FromIntrusiveIterator<T> for Vec<T> {
-    fn collect<I: IntrusiveIterator<T>>(iter: I) -> Vec<T> {
+impl<T> FromTraversal<T> for Vec<T> {
+    fn collect<I: Traversal<T>>(iter: I) -> Vec<T> {
         let mut vec = Vec::new();
-        iter.iterate(|&mut: elem| vec.push(elem));
+        iter.run(|&mut: elem| vec.push(elem));
         vec
     }
 }
@@ -62,7 +62,7 @@ impl<T> FromIntrusiveIterator<T> for Vec<T> {
 #[cfg(test)]
 mod test {
     pub use super::*;
-    pub use IntrusiveIterator;
+    pub use Traversal;
 
     describe! intrusive_slice_iter {
         it "should yield all elements of a slice in order" {
@@ -82,7 +82,7 @@ mod test {
 
             let data = Vec::from_fn(10000, |_| random::<uint>());
             bench.iter(|| {
-                data.as_slice().iterate(|&: x| ::test::black_box(x));
+                data.as_slice().run(|&: x| ::test::black_box(x));
             });
         }
 

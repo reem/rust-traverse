@@ -43,7 +43,7 @@ pub fn range<A: Int>(start: A, stop: A) -> Range<A> {
     Range { start: start, stop: stop }
 }
 
-// FIXME: #10414: Unfortunate type bound
+// FIXME: rust-lang/rust#10414: Unfortunate type bound
 impl<A: Int + ToPrimitive> IntrusiveIterator<A> for Range<A> {
     #[inline]
     fn traverse<F: FnMut(A) -> bool>(self, mut f: F) {

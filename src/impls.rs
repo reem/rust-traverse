@@ -63,7 +63,6 @@ impl<T> FromIntrusiveIterator<T> for Vec<T> {
 mod test {
     pub use super::*;
     pub use IntrusiveIterator;
-    pub use IntrusiveIteratorExt;
 
     describe! intrusive_slice_iter {
         it "should yield all elements of a slice in order" {

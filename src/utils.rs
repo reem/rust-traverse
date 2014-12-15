@@ -225,7 +225,7 @@ impl<A, I> IntrusiveIterator<A> for Iterate<A, I> where
 #[cfg(test)]
 mod test {
     use super::*;
-    use IntrusiveIteratorExt;
+    use IntrusiveIterator;
 
     #[test]
     fn test_range() {

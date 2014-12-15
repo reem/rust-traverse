@@ -1,5 +1,5 @@
 use std::{mem, raw};
-use {Traversal, FromTraversal};
+use {Traversal};
 
 impl<'a, T> Traversal<&'a T> for &'a [T] {
     #[inline]
@@ -48,14 +48,6 @@ impl<'a, T> Traversal<&'a mut T> for &'a mut [T] {
                 }
             }
         }
-    }
-}
-
-impl<T> FromTraversal<T> for Vec<T> {
-    fn collect<I: Traversal<T>>(iter: I) -> Vec<T> {
-        let mut vec = Vec::new();
-        iter.run(|&mut: elem| vec.push(elem));
-        vec
     }
 }
 

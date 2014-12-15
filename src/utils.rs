@@ -18,7 +18,7 @@ impl<A:Copy> Copy for Counter<A> {}
 #[inline]
 #[unstable = "may be renamed"]
 pub fn count<A>(start: A, step: A) -> Counter<A> {
-    Counter{start: start, step: step}
+    Counter{ start: start, step: step }
 }
 
 #[unstable = "trait is unstable"]
@@ -48,10 +48,7 @@ impl<A:Copy> Copy for Range<A> {}
 /// at start (inclusive), and ending at stop (exclusive)).
 #[inline]
 pub fn range<A: Int>(start: A, stop: A) -> Range<A> {
-    Range {
-        start: start,
-        stop: stop,
-    }
+    Range { start: start, stop: stop }
 }
 
 // FIXME: #10414: Unfortunate type bound
@@ -78,10 +75,7 @@ pub struct RangeInclusive<A> {
 /// Return an iterator over the range [start, stop]
 #[inline]
 pub fn range_inclusive<A: Int>(start: A, stop: A) -> RangeInclusive<A> {
-    RangeInclusive {
-        start: start,
-        stop: stop,
-    }
+    RangeInclusive { start: start, stop: stop }
 }
 
 impl<A: Int + ToPrimitive> IntrusiveIterator<A> for RangeInclusive<A> {
@@ -108,7 +102,7 @@ pub struct RangeStep<A> {
 /// Return an iterator over the range [start, stop) by `step`. It handles overflow by stopping.
 #[inline]
 pub fn range_step<A: Int>(start: A, stop: A, step: A) -> RangeStep<A> {
-    RangeStep{start: start, stop: stop, step: step}
+    RangeStep { start: start, stop: stop, step: step }
 }
 
 impl<A: Int> IntrusiveIterator<A> for RangeStep<A> {
@@ -146,11 +140,7 @@ pub struct RangeStepInclusive<A> {
 /// Return an iterator over the range [start, stop] by `step`. It handles overflow by stopping.
 #[inline]
 pub fn range_step_inclusive<A: Int>(start: A, stop: A, step: A) -> RangeStepInclusive<A> {
-    RangeStepInclusive {
-        start: start,
-        stop: stop,
-        step: step,
-    }
+    RangeStepInclusive { start: start, stop: stop, step: step }
 }
 
 impl<A: Int> IntrusiveIterator<A> for RangeStepInclusive<A> {
@@ -179,7 +169,7 @@ impl<A: Int> IntrusiveIterator<A> for RangeStepInclusive<A> {
 /// Create a new iterator that endlessly repeats the element `elt`.
 #[inline]
 pub fn repeat<T: Clone>(elt: T) -> Repeat<T> {
-    Repeat{element: elt}
+    Repeat{ element: elt }
 }
 
 /// An iterator that repeats an element endlessly

@@ -1,6 +1,6 @@
-# Intrusive
+# Traverse
 
-> Proof-of-concept trait for intrusive iterators.
+> Proof-of-concept trait for internal iterators called traversals.
 
 ## Usage
 
@@ -9,12 +9,14 @@ with the rest of your dependencies:
 
 ```toml
 [dependencies]
-intrusive = "*"
+traverse = "*"
 ```
 
 ## Author
 
-[Jonathan Reem](https://medium.com/@jreem) is the primary author and maintainer of intrusive.
+[Jonathan Reem](https://medium.com/@jreem) and
+[Alexis Beingessner](https://github.com/gankro)
+are the primary authors and maintainers of traverse.
 
 ## License
 

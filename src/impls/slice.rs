@@ -56,20 +56,20 @@ mod test {
     pub use super::*;
     pub use Traversal;
 
-    describe! intrusive_slice_iter {
+    describe! slice_traversal {
         it "should yield all elements of a slice in order" {
             let data = [1u, 2, 5, 4, 6, 7];
-            let intrusive: Vec<uint> = data.as_slice().map(|&x| x).collect();
-            assert_eq!(&*intrusive, data.as_slice());
+            let traversal: Vec<uint> = data.as_slice().map(|&x| x).collect();
+            assert_eq!(&*traversal, data.as_slice());
         }
 
         it "should work with zero-sized types" {
             let data = [(), (), ()];
-            let intrusive: Vec<()> = data.as_slice().map(|&x| x).collect();
-            assert_eq!(&*intrusive, data.as_slice());
+            let traversal: Vec<()> = data.as_slice().map(|&x| x).collect();
+            assert_eq!(&*traversal, data.as_slice());
         }
 
-        bench "intrusive iteration" (bench) {
+        bench "internal iteration" (bench) {
             use std::rand::random;
 
             let data = Vec::from_fn(10000, |_| random::<uint>());

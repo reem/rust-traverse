@@ -1,7 +1,7 @@
 #![feature(unboxed_closures, globs, phase)]
 //#![deny(missing_docs, warnings)]
 
-//! Proof-of-concept trait for intrusive iterators.
+//! Proof-of-concept trait for internal iterators.
 
 #[cfg(test)] #[phase(plugin)]
 extern crate stainless;
@@ -9,18 +9,18 @@ extern crate stainless;
 #[cfg(test)]
 extern crate test;
 
-/// Intrusive Iterators.
-pub trait IntrusiveIterator<T> {
+/// An iterator that runs all at once
+pub trait Traversal<T> {
     /// Run this Iterator using the provided closure.
     ///
     /// Return false from the closure to end the iteration.
-    fn traverse<F: FnMut(T) -> bool>(self, F);
+    fn foreach<F: FnMut(T) -> bool>(self, F);
 
     /// Run this Iterator using the provided closure.
     ///
     /// This is a utility method for non-cancelling iterations.
-    fn iterate<F: FnMut(T)>(self, mut f: F) {
-        self.traverse(|&mut: t: T| { f(t); false })
+    fn run<F: FnMut(T)>(self, mut f: F) {
+        self.foreach(|&mut: t: T| { f(t); false })
     }
 
     fn map<O, F: FnMut(T) -> O>(self, f: F) -> Map<Self, F> {
@@ -63,13 +63,13 @@ pub trait IntrusiveIterator<T> {
         FlatMap { iter: self, producer: f }
     }
 
-    fn chain<O: IntrusiveIterator<T>>(self, other: O) -> Chain<Self, O> {
+    fn chain<O: Traversal<T>>(self, other: O) -> Chain<Self, O> {
         Chain { one: self, two: other }
     }
 
     fn count(self) -> uint {
         let mut count = 0;
-        self.iterate(|_| { count += 1; });
+        self.run(|_| { count += 1; });
         count
     }
 
@@ -77,39 +77,39 @@ pub trait IntrusiveIterator<T> {
         Cloned { iter: self }
     }
 
-    fn collect<D: FromIntrusiveIterator<T>>(self) -> D {
-        FromIntrusiveIterator::collect(self)
+    fn collect<D: FromTraversal<T>>(self) -> D {
+        FromTraversal::collect(self)
     }
 }
 
-pub trait FromIntrusiveIterator<T> {
-    fn collect<I: IntrusiveIterator<T>>(I) -> Self;
+pub trait FromTraversal<T> {
+    fn collect<I: Traversal<T>>(I) -> Self;
 }
 
-pub trait IntoIntrusive<T> {
-    fn into_intrusive(self) -> Intrusive<Self>;
+pub trait IntoTraversal<T> {
+    fn into_traversal(self) -> Internal<Self>;
 }
 
-impl<T, I: Iterator<T>> IntoIntrusive<T> for I {
-    fn into_intrusive(self) -> Intrusive<I> {
-        Intrusive { iter: self }
+impl<T, I: Iterator<T>> IntoTraversal<T> for I {
+    fn into_traversal(self) -> Internal<I> {
+        Internal { iter: self }
     }
 }
 
-pub struct Intrusive<I> {
+pub struct Internal<I> {
     iter: I
 }
 
-impl<T, I: Iterator<T>> IntrusiveIterator<T> for Intrusive<I> {
-    fn traverse<F: FnMut(T) -> bool>(mut self, mut f: F) {
+impl<T, I: Iterator<T>> Traversal<T> for Internal<I> {
+    fn foreach<F: FnMut(T) -> bool>(mut self, mut f: F) {
         for elem in self.iter {
             if f(elem) { break }
         }
     }
 }
 
-/// An IntrusiveIterator that maps over the contents of
-/// another IntrusiveIterator.
+/// An Traversal that maps over the contents of
+/// another Traversal.
 #[deriving(Copy, Clone)]
 pub struct Map<I, F> {
     iter: I,

@@ -1,2 +1,2 @@
-mod slice;
+pub mod slice;
 mod vec;

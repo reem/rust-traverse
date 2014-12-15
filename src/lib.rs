@@ -9,6 +9,9 @@ extern crate stainless;
 #[cfg(test)]
 extern crate test;
 
+pub use self::impls::slice;
+pub mod utils;
+
 /// Intrusive Iterators.
 pub trait IntrusiveIterator<T> {
     /// Run this Iterator using the provided closure.
@@ -180,4 +183,4 @@ pub struct Cloned<I> {
 
 mod ext;
 mod impls;
-pub mod utils;
+

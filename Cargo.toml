@@ -6,7 +6,7 @@ authors = ["Jonathan Reem <jonathan.reem@gmail.com>"]
 repository = "https://github.com/reem/rust-intrusive.git"
 description = "Proof-of-concept trait for intrusive iterators."
 readme = "README.md"
-license = "MIT"
+license = "APACHE/MIT"
 
 [dev-dependencies]
 stainless = "*"

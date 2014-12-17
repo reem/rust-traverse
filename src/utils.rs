@@ -23,7 +23,8 @@ impl<A: Add<A, A> + Clone> Traversal<A> for Counter<A> {
         let mut i = self.start;
         loop {
             let old = i;
-            i = old + self.step;
+            // This is what std does, so I guess it's legit...
+            i = old.clone() + self.step.clone();
             if f(old) { return; }
         }
     }

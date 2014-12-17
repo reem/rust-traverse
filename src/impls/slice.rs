@@ -53,41 +53,43 @@ impl<'a, T> Traversal<&'a mut T> for &'a mut [T] {
 
 #[cfg(test)]
 mod test {
-    pub use super::*;
-    pub use Traversal;
+    use Traversal;
+    use test::Bencher;
 
-    describe! slice_traversal {
-        it "should yield all elements of a slice in order" {
-            let data = [1u, 2, 5, 4, 6, 7];
-            let traversal: Vec<uint> = data.as_slice().map(|&x| x).collect();
-            assert_eq!(&*traversal, data.as_slice());
-        }
+    #[test]
+    fn test_basic() {
+        let data = [1u, 2, 5, 4, 6, 7];
+        let traversal: Vec<uint> = data.as_slice().map(|&x| x).collect();
+        assert_eq!(&*traversal, data.as_slice());
+    }
 
-        it "should work with zero-sized types" {
-            let data = [(), (), ()];
-            let traversal: Vec<()> = data.as_slice().map(|&x| x).collect();
-            assert_eq!(&*traversal, data.as_slice());
-        }
+    #[test]
+    fn test_zero_size() {
+        let data = [(), (), ()];
+        let traversal: Vec<()> = data.as_slice().map(|&x| x).collect();
+        assert_eq!(&*traversal, data.as_slice());
+    }
 
-        bench "internal iteration" (bench) {
-            use std::rand::random;
+    #[bench]
+    fn bench_internal (bench: &mut Bencher) {
+        use std::rand::random;
 
-            let data = Vec::from_fn(10000, |_| random::<uint>());
-            bench.iter(|| {
-                data.as_slice().run(|&: x| ::test::black_box(x));
-            });
-        }
+        let data = Vec::from_fn(10000, |_| random::<uint>());
+        bench.iter(|| {
+            data.as_slice().run(|&: x| ::test::black_box(x));
+        });
+    }
 
-        bench "external iteration" (bench) {
-            use std::rand::random;
+    #[bench]
+    fn bench_external (bench: &mut Bencher) {
+        use std::rand::random;
 
-            let data = Vec::from_fn(10000, |_| random::<uint>());
-            bench.iter(|| {
-                for datum in data.as_slice().iter() {
-                    ::test::black_box(datum);
-                }
-            });
-        }
+        let data = Vec::from_fn(10000, |_| random::<uint>());
+        bench.iter(|| {
+            for datum in data.as_slice().iter() {
+                ::test::black_box(datum);
+            }
+        });
     }
 }
 

@@ -3,9 +3,6 @@
 
 //! Proof-of-concept trait for internal iterators.
 
-#[cfg(test)] #[phase(plugin)]
-extern crate stainless;
-
 #[cfg(test)]
 extern crate test;
 

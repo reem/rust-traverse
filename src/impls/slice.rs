@@ -55,6 +55,7 @@ impl<'a, T> Traversal<&'a mut T> for &'a mut [T] {
 mod test {
     use Traversal;
     use test::Bencher;
+    use std::iter::range;
 
     #[test]
     fn test_basic() {
@@ -74,7 +75,7 @@ mod test {
     fn bench_internal (bench: &mut Bencher) {
         use std::rand::random;
 
-        let data = Vec::from_fn(10000, |_| random::<uint>());
+        let data: Vec<uint> = range(0, 10000).map(|_| random()).collect();
         bench.iter(|| {
             data.as_slice().run(|&: x| ::test::black_box(x));
         });
@@ -84,7 +85,7 @@ mod test {
     fn bench_external (bench: &mut Bencher) {
         use std::rand::random;
 
-        let data = Vec::from_fn(10000, |_| random::<uint>());
+        let data: Vec<uint> = range(0, 10000).map(|_| random()).collect();
         bench.iter(|| {
             for datum in data.as_slice().iter() {
                 ::test::black_box(datum);

@@ -7,7 +7,7 @@
 extern crate test;
 
 /// An iterator that runs all at once
-pub trait Traversal<T> {
+pub trait Traversal<T>: Sized {
     /// Run this Iterator using the provided closure.
     ///
     /// Return false from the closure to end the iteration.

@@ -1,4 +1,5 @@
 use super::*;
+use std::ops::Deref;
 
 impl<T, O, I: Traversal<T>, F: FnMut(T) -> O> Traversal<O> for Map<I, F> {
     fn foreach<F1: FnMut(O) -> bool>(self, mut f: F1) {
@@ -152,7 +153,7 @@ where I: Traversal<T>,
 
 impl<T, I, D> Traversal<T> for Cloned<I>
 where I: Traversal<D>,
-      D: Deref<T>,
+      D: Deref<Target=T>,
       T: Clone {
     fn foreach<F: FnMut(T) -> bool>(self, mut f: F) {
         self.iter.foreach(|d| {

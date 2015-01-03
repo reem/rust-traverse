@@ -1,5 +1,6 @@
 use Traversal;
-use std::num::Int;
+use std::num::{Int, ToPrimitive};
+use std::ops::Add;
 
 /// An infinite iterator starting at `start` and advancing by `step` with each
 /// iteration

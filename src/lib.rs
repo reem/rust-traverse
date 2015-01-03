@@ -107,70 +107,70 @@ impl<T, I: Iterator<T>> Traversal<T> for Internal<I> {
 
 /// An Traversal that maps over the contents of
 /// another Traversal.
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct Map<I, F> {
     iter: I,
     closure: F
 }
 
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct Filter<I, F> {
     iter: I,
     predicate: F
 }
 
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct FilterMap<I, F> {
     iter: I,
     predicate: F
 }
 
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct Enumerate<I>(I);
 
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct Skip<I> {
     iter: I,
     n: uint
 }
 
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct Take<I> {
     iter: I,
     n: uint
 }
 
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct SkipWhile<I, F> {
     iter: I,
     predicate: F
 }
 
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct TakeWhile<I, F> {
     iter: I,
     predicate: F
 }
 
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct Inspect<I, F> {
     iter: I,
     closure: F
 }
 
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct Chain<I, O> {
     one: I,
     two: O
 }
 
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct FlatMap<I, F> {
     iter: I,
     producer: F
 }
 
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct Cloned<I> {
     iter: I,
 }

@@ -3,7 +3,7 @@ use std::num::Int;
 
 /// An infinite iterator starting at `start` and advancing by `step` with each
 /// iteration
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct Counter<A> {
     /// The current state the counter is at (next value to be yielded)
     start: A,
@@ -31,7 +31,7 @@ impl<A: Add<A, A> + Clone> Traversal<A> for Counter<A> {
 }
 
 /// An iterator over the range [start, stop)
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct Range<A> {
     start: A,
     stop: A,
@@ -59,7 +59,7 @@ impl<A: Int + ToPrimitive> Traversal<A> for Range<A> {
 }
 
 /// An iterator over the range [start, stop]
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct RangeInclusive<A> {
     start: A,
     stop: A,
@@ -85,7 +85,7 @@ impl<A: Int + ToPrimitive> Traversal<A> for RangeInclusive<A> {
 }
 
 /// An iterator over the range [start, stop) by `step`. It handles overflow by stopping.
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct RangeStep<A> {
     start: A,
     stop: A,
@@ -122,7 +122,7 @@ impl<A: Int> Traversal<A> for RangeStep<A> {
 }
 
 /// An iterator over the range [start, stop] by `step`. It handles overflow by stopping.
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct RangeStepInclusive<A> {
     start: A,
     stop: A,
@@ -165,7 +165,7 @@ pub fn repeat<T: Clone>(elt: T) -> Repeat<T> {
 }
 
 /// An iterator that repeats an element endlessly
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct Repeat<A> {
     element: A
 }
@@ -181,7 +181,7 @@ impl<A: Clone> Traversal<A> for Repeat<A> {
 
 /// An iterator that repeatedly applies a given function, starting
 /// from a given seed value.
-#[deriving(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct Iterate<T, F> {
     seed: T,
     iter: F,

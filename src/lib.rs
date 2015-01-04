@@ -18,19 +18,21 @@ pub trait Traversal: Sized {
     /// Run this Iterator using the provided closure.
     ///
     /// This is a utility method for non-cancelling iterations.
-    fn run<F: FnMut(Self::Item)>(self, mut f: F) {
+    fn run<F>(self, mut f: F) where F: FnMut(Self::Item) {
         self.foreach(|&mut: t: Self::Item| { f(t); false })
     }
 
-    fn map<O, F: FnMut(Self::Item) -> O>(self, f: F) -> Map<Self, F> {
+    fn map<O, F>(self, f: F) -> Map<Self, F> where F: FnMut(Self::Item) -> O {
         Map { iter: self, closure: f }
     }
 
-    fn filter<F: FnMut(&Self::Item) -> bool>(self, pred: F) -> Filter<Self, F> {
+    fn filter<F>(self, pred: F) -> Filter<Self, F>
+    where F: FnMut(&Self::Item) -> bool {
         Filter { iter: self, predicate: pred }
     }
 
-    fn filter_map<O, F: FnMut(Self::Item) -> Option<O>>(self, pred: F) -> FilterMap<Self, F> {
+    fn filter_map<O, F>(self, pred: F) -> FilterMap<Self, F>
+    where F: FnMut(Self::Item) -> Option<O> {
         FilterMap { iter: self, predicate: pred }
     }
 
@@ -46,11 +48,13 @@ pub trait Traversal: Sized {
         Take { iter: self, n: n }
     }
 
-    fn skip_while<F: FnMut(Self::Item) -> bool>(self, pred: F) -> SkipWhile<Self, F> {
+    fn skip_while<F>(self, pred: F) -> SkipWhile<Self, F>
+    where F: FnMut(Self::Item) -> bool {
         SkipWhile { iter: self, predicate: pred }
     }
 
-    fn take_while<F: FnMut(Self::Item) -> bool>(self, pred: F) -> TakeWhile<Self, F> {
+    fn take_while<F>(self, pred: F) -> TakeWhile<Self, F>
+    where F: FnMut(Self::Item) -> bool {
         TakeWhile { iter: self, predicate: pred }
     }
 
@@ -64,7 +68,8 @@ pub trait Traversal: Sized {
         FlatMap { iter: self, producer: f }
     }
 
-    fn chain<O: Traversal<Item=Self::Item>>(self, other: O) -> Chain<Self, O> {
+    fn chain<O>(self, other: O) -> Chain<Self, O>
+    where O: Traversal<Item=Self::Item> {
         Chain { one: self, two: other }
     }
 
@@ -78,7 +83,7 @@ pub trait Traversal: Sized {
         Cloned { iter: self }
     }
 
-    fn collect<D: FromTraversal<Self::Item>>(self) -> D {
+    fn collect<D>(self) -> D where D: FromTraversal<Self::Item> {
         FromTraversal::collect(self)
     }
 }

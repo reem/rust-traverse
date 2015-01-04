@@ -18,9 +18,11 @@ pub fn count<A>(start: A, step: A) -> Counter<A> {
     Counter{ start: start, step: step }
 }
 
-impl<A: Add<Output=A> + Clone> Traversal<A> for Counter<A> {
+impl<A: Add<Output=A> + Clone> Traversal for Counter<A> {
+    type Item = A;
+
     #[inline]
-    fn foreach<F: FnMut(A) -> bool>(self, mut f: F) {
+    fn foreach<F>(self, mut f: F) where F: FnMut(A) -> bool {
         let mut i = self.start;
         loop {
             let old = i;
@@ -46,9 +48,11 @@ pub fn range<A: Int>(start: A, stop: A) -> Range<A> {
 }
 
 // FIXME: rust-lang/rust#10414: Unfortunate type bound
-impl<A: Int + ToPrimitive> Traversal<A> for Range<A> {
+impl<A: Int + ToPrimitive> Traversal for Range<A> {
+    type Item = A;
+
     #[inline]
-    fn foreach<F: FnMut(A) -> bool>(self, mut f: F) {
+    fn foreach<F>(self, mut f: F) where F: FnMut(A) -> bool {
         let mut i = self.start;
         let one = Int::one();
         while i < self.stop {
@@ -72,9 +76,11 @@ pub fn range_inclusive<A: Int>(start: A, stop: A) -> RangeInclusive<A> {
     RangeInclusive { start: start, stop: stop }
 }
 
-impl<A: Int + ToPrimitive> Traversal<A> for RangeInclusive<A> {
+impl<A: Int + ToPrimitive> Traversal for RangeInclusive<A> {
+    type Item = A;
+
     #[inline]
-    fn foreach<F: FnMut(A) -> bool>(self, mut f: F) {
+    fn foreach<F>(self, mut f: F) where F: FnMut(A) -> bool {
         let mut i = self.start;
         let one = Int::one();
         while i <= self.stop {
@@ -99,9 +105,11 @@ pub fn range_step<A: Int>(start: A, stop: A, step: A) -> RangeStep<A> {
     RangeStep { start: start, stop: stop, step: step }
 }
 
-impl<A: Int> Traversal<A> for RangeStep<A> {
+impl<A: Int> Traversal for RangeStep<A> {
+    type Item = A;
+
     #[inline]
-    fn foreach<F: FnMut(A) -> bool>(self, mut f: F) {
+    fn foreach<F>(self, mut f: F) where F: FnMut(A) -> bool {
         let mut i = self.start;
         // branch once and duplicate trivial logic for the perf
         if self.step > Int::zero() {
@@ -136,9 +144,11 @@ pub fn range_step_inclusive<A: Int>(start: A, stop: A, step: A) -> RangeStepIncl
     RangeStepInclusive { start: start, stop: stop, step: step }
 }
 
-impl<A: Int> Traversal<A> for RangeStepInclusive<A> {
+impl<A: Int> Traversal for RangeStepInclusive<A> {
+    type Item = A;
+
     #[inline]
-    fn foreach<F: FnMut(A) -> bool>(self, mut f: F) {
+    fn foreach<F>(self, mut f: F) where F: FnMut(A) -> bool {
         let mut i = self.start;
         // branch once and duplicate trivial logic for the perf
         if self.step > Int::zero() {
@@ -171,9 +181,11 @@ pub struct Repeat<A> {
     element: A
 }
 
-impl<A: Clone> Traversal<A> for Repeat<A> {
+impl<A: Clone> Traversal for Repeat<A> {
+    type Item = A;
+
     #[inline]
-    fn foreach<F: FnMut(A) -> bool>(self, mut f: F) {
+    fn foreach<F>(self, mut f: F) where F: FnMut(A) -> bool {
         loop {
             if f(self.element.clone()) { return; }
         }
@@ -198,12 +210,13 @@ pub fn iterate<T, F>(seed: T, f: F) -> Iterate<T, F> where
     Iterate { seed: seed, iter: f }
 }
 
-impl<A, I> Traversal<A> for Iterate<A, I> where
+impl<A, I> Traversal for Iterate<A, I> where
     A: Clone,
-    I: FnMut(A) -> A,
-{
+    I: FnMut(A) -> A {
+    type Item = A;
+
     #[inline]
-    fn foreach<F: FnMut(A) -> bool>(mut self, mut f: F) {
+    fn foreach<F>(mut self, mut f: F) where F: FnMut(A) -> bool {
         if !f(self.seed.clone()) {
             let mut cur = self.seed;
             loop {

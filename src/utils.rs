@@ -18,7 +18,7 @@ pub fn count<A>(start: A, step: A) -> Counter<A> {
     Counter{ start: start, step: step }
 }
 
-impl<A: Add<A, A> + Clone> Traversal<A> for Counter<A> {
+impl<A: Add<Output=A> + Clone> Traversal<A> for Counter<A> {
     #[inline]
     fn foreach<F: FnMut(A) -> bool>(self, mut f: F) {
         let mut i = self.start;

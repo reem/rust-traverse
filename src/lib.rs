@@ -56,7 +56,7 @@ pub trait Traversal<T>: Sized {
         Inspect { iter: self, closure: f }
     }
 
-    fn flat_map<O, U: Iterator<O>, F: FnMut(T) -> U>(self, f: F) -> FlatMap<Self, F> {
+    fn flat_map<U: Iterator, F: FnMut(T) -> U>(self, f: F) -> FlatMap<Self, F> {
         FlatMap { iter: self, producer: f }
     }
 
@@ -87,7 +87,7 @@ pub trait IntoTraversal<T> {
     fn into_traversal(self) -> Internal<Self>;
 }
 
-impl<T, I: Iterator<T>> IntoTraversal<T> for I {
+impl<I: Iterator> IntoTraversal<I::Item> for I {
     fn into_traversal(self) -> Internal<I> {
         Internal { iter: self }
     }
@@ -97,8 +97,8 @@ pub struct Internal<I> {
     iter: I
 }
 
-impl<T, I: Iterator<T>> Traversal<T> for Internal<I> {
-    fn foreach<F: FnMut(T) -> bool>(mut self, mut f: F) {
+impl<I: Iterator> Traversal<I::Item> for Internal<I> {
+    fn foreach<F: FnMut(I::Item) -> bool>(mut self, mut f: F) {
         for elem in self.iter {
             if f(elem) { break }
         }

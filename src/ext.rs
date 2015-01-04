@@ -1,7 +1,8 @@
 use super::*;
 use std::ops::Deref;
 
-impl<T, O, I: Traversal<Item=T>, F: FnMut(T) -> O> Traversal for Map<I, F> {
+impl<T, O, I, F> Traversal for Map<I, F>
+where I: Traversal<Item=T>, F: FnMut(T) -> O {
     type Item = O;
 
     fn foreach<F1>(self, mut f: F1) where F1: FnMut(O) -> bool {

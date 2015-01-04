@@ -1,9 +1,11 @@
 use std::{mem, raw};
 use {Traversal};
 
-impl<'a, T> Traversal<&'a T> for &'a [T] {
+impl<'a, T> Traversal for &'a [T] {
+    type Item = &'a T;
+
     #[inline]
-    fn foreach<F: FnMut(&'a T) -> bool>(self, mut f: F) {
+    fn foreach<F>(self, mut f: F) where F: FnMut(&'a T) -> bool {
         unsafe {
             let slice = mem::transmute::<&'a [T], raw::Slice<T>>(self);
 
@@ -26,9 +28,11 @@ impl<'a, T> Traversal<&'a T> for &'a [T] {
     }
 }
 
-impl<'a, T> Traversal<&'a mut T> for &'a mut [T] {
+impl<'a, T> Traversal for &'a mut [T] {
+    type Item = &'a mut T;
+
     #[inline]
-    fn foreach<F: FnMut(&'a mut T) -> bool>(self, mut f: F) {
+    fn foreach<F>(self, mut f: F) where F: FnMut(&'a mut T) -> bool {
         unsafe {
             let slice = mem::transmute::<&'a mut [T], raw::Slice<T>>(self);
 

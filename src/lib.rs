@@ -1,4 +1,4 @@
-#![feature(unboxed_closures, globs, phase)]
+#![feature(unboxed_closures, associated_types, globs, phase)]
 //#![deny(missing_docs, warnings)]
 
 //! Proof-of-concept trait for internal iterators.
@@ -7,28 +7,30 @@
 extern crate test;
 
 /// An iterator that runs all at once
-pub trait Traversal<T>: Sized {
+pub trait Traversal: Sized {
+    type Item;
+
     /// Run this Iterator using the provided closure.
     ///
     /// Return false from the closure to end the iteration.
-    fn foreach<F: FnMut(T) -> bool>(self, F);
+    fn foreach<F>(self, F) where F: FnMut(Self::Item) -> bool;
 
     /// Run this Iterator using the provided closure.
     ///
     /// This is a utility method for non-cancelling iterations.
-    fn run<F: FnMut(T)>(self, mut f: F) {
-        self.foreach(|&mut: t: T| { f(t); false })
+    fn run<F: FnMut(Self::Item)>(self, mut f: F) {
+        self.foreach(|&mut: t: Self::Item| { f(t); false })
     }
 
-    fn map<O, F: FnMut(T) -> O>(self, f: F) -> Map<Self, F> {
+    fn map<O, F: FnMut(Self::Item) -> O>(self, f: F) -> Map<Self, F> {
         Map { iter: self, closure: f }
     }
 
-    fn filter<F: FnMut(&T) -> bool>(self, pred: F) -> Filter<Self, F> {
+    fn filter<F: FnMut(&Self::Item) -> bool>(self, pred: F) -> Filter<Self, F> {
         Filter { iter: self, predicate: pred }
     }
 
-    fn filter_map<O, F: FnMut(T) -> Option<O>>(self, pred: F) -> FilterMap<Self, F> {
+    fn filter_map<O, F: FnMut(Self::Item) -> Option<O>>(self, pred: F) -> FilterMap<Self, F> {
         FilterMap { iter: self, predicate: pred }
     }
 
@@ -44,23 +46,25 @@ pub trait Traversal<T>: Sized {
         Take { iter: self, n: n }
     }
 
-    fn skip_while<F: FnMut(T) -> bool>(self, pred: F) -> SkipWhile<Self, F> {
+    fn skip_while<F: FnMut(Self::Item) -> bool>(self, pred: F) -> SkipWhile<Self, F> {
         SkipWhile { iter: self, predicate: pred }
     }
 
-    fn take_while<F: FnMut(T) -> bool>(self, pred: F) -> TakeWhile<Self, F> {
+    fn take_while<F: FnMut(Self::Item) -> bool>(self, pred: F) -> TakeWhile<Self, F> {
         TakeWhile { iter: self, predicate: pred }
     }
 
-    fn inspect<F: FnMut(&T)>(self, f: F) -> Inspect<Self, F> {
+    fn inspect<F: FnMut(&Self::Item)>(self, f: F) -> Inspect<Self, F> {
         Inspect { iter: self, closure: f }
     }
 
-    fn flat_map<U: Iterator, F: FnMut(T) -> U>(self, f: F) -> FlatMap<Self, F> {
+    fn flat_map<A, U, F>(self, f: F) -> FlatMap<Self, F>
+    where U: Traversal<Item=A>,
+          F: FnMut(Self::Item) -> U {
         FlatMap { iter: self, producer: f }
     }
 
-    fn chain<O: Traversal<T>>(self, other: O) -> Chain<Self, O> {
+    fn chain<O: Traversal<Item=Self::Item>>(self, other: O) -> Chain<Self, O> {
         Chain { one: self, two: other }
     }
 
@@ -74,13 +78,13 @@ pub trait Traversal<T>: Sized {
         Cloned { iter: self }
     }
 
-    fn collect<D: FromTraversal<T>>(self) -> D {
+    fn collect<D: FromTraversal<Self::Item>>(self) -> D {
         FromTraversal::collect(self)
     }
 }
 
 pub trait FromTraversal<T> {
-    fn collect<I: Traversal<T>>(I) -> Self;
+    fn collect<I: Traversal<Item=T>>(I) -> Self;
 }
 
 pub trait IntoTraversal<T> {
@@ -97,8 +101,10 @@ pub struct Internal<I> {
     iter: I
 }
 
-impl<I: Iterator> Traversal<I::Item> for Internal<I> {
-    fn foreach<F: FnMut(I::Item) -> bool>(mut self, mut f: F) {
+impl<I: Iterator> Traversal for Internal<I> {
+    type Item = I::Item;
+
+    fn foreach<F>(mut self, mut f: F) where F: FnMut(I::Item) -> bool {
         for elem in self.iter {
             if f(elem) { break }
         }

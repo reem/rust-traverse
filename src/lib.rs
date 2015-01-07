@@ -1,4 +1,3 @@
-#![feature(unboxed_closures, associated_types, globs, phase)]
 //#![deny(missing_docs, warnings)]
 
 //! Proof-of-concept trait for internal iterators.

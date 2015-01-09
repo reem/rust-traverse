@@ -1,4 +1,5 @@
 //#![deny(missing_docs, warnings)]
+#![allow(staged_unstable, staged_experimental)]
 
 //! Proof-of-concept trait for internal iterators.
 
@@ -21,7 +22,7 @@ pub trait Traversal: Sized {
         self.foreach(|&mut: t: Self::Item| { f(t); false })
     }
 
-    fn map<O, F>(self, f: F) -> Map<Self, F> where F: FnMut(Self::Item) -> O {
+    fn map<O, F>(self, f: F) -> Map<Self::Item, O, Self, F> where F: FnMut(Self::Item) -> O {
         Map { iter: self, closure: f }
     }
 
@@ -30,7 +31,7 @@ pub trait Traversal: Sized {
         Filter { iter: self, predicate: pred }
     }
 
-    fn filter_map<O, F>(self, pred: F) -> FilterMap<Self, F>
+    fn filter_map<O, F>(self, pred: F) -> FilterMap<Self::Item, O, Self, F>
     where F: FnMut(Self::Item) -> Option<O> {
         FilterMap { iter: self, predicate: pred }
     }
@@ -61,7 +62,7 @@ pub trait Traversal: Sized {
         Inspect { iter: self, closure: f }
     }
 
-    fn flat_map<A, U, F>(self, f: F) -> FlatMap<Self, F>
+    fn flat_map<A, U, F>(self, f: F) -> FlatMap<Self::Item, A, U, Self, F>
     where U: Traversal<Item=A>,
           F: FnMut(Self::Item) -> U {
         FlatMap { iter: self, producer: f }
@@ -118,7 +119,7 @@ impl<I: Iterator> Traversal for Internal<I> {
 /// An Traversal that maps over the contents of
 /// another Traversal.
 #[derive(Copy, Clone)]
-pub struct Map<I, F> {
+pub struct Map<T, O, I, F> {
     iter: I,
     closure: F
 }
@@ -130,7 +131,7 @@ pub struct Filter<I, F> {
 }
 
 #[derive(Copy, Clone)]
-pub struct FilterMap<I, F> {
+pub struct FilterMap<T, O, I, F> {
     iter: I,
     predicate: F
 }
@@ -175,7 +176,7 @@ pub struct Chain<I, O> {
 }
 
 #[derive(Copy, Clone)]
-pub struct FlatMap<I, F> {
+pub struct FlatMap<T, O, U, I, F> {
     iter: I,
     producer: F
 }

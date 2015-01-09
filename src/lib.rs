@@ -12,7 +12,7 @@ pub trait Traversal: Sized {
 
     /// Run this Iterator using the provided closure.
     ///
-    /// Return false from the closure to end the iteration.
+    /// Return true from the closure to end the iteration.
     fn foreach<F>(self, F) where F: FnMut(Self::Item) -> bool;
 
     /// Run this Iterator using the provided closure.

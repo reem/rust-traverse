@@ -42,9 +42,9 @@ where I: Traversal<Item=T>, F: FnMut(T) -> Option<O> {
 
 impl<T, I> Traversal for Enumerate<I>
 where I: Traversal<Item=T> {
-    type Item = (uint, T);
+    type Item = (usize, T);
 
-    fn foreach<F1>(self, mut f: F1) where F1: FnMut((uint, T)) -> bool {
+    fn foreach<F1>(self, mut f: F1) where F1: FnMut((usize, T)) -> bool {
         let mut counter = 0;
         self.0.foreach(|t: T| {
             let res = f((counter, t));

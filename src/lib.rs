@@ -1,5 +1,4 @@
 //#![deny(missing_docs, warnings)]
-#![allow(staged_unstable, staged_experimental)]
 
 //! Proof-of-concept trait for internal iterators.
 
@@ -40,11 +39,11 @@ pub trait Traversal: Sized {
         Enumerate(self)
     }
 
-    fn skip(self, n: uint) -> Skip<Self> {
+    fn skip(self, n: usize) -> Skip<Self> {
         Skip { iter: self, n: n }
     }
 
-    fn take(self, n: uint) -> Take<Self> {
+    fn take(self, n: usize) -> Take<Self> {
         Take { iter: self, n: n }
     }
 
@@ -73,7 +72,7 @@ pub trait Traversal: Sized {
         Chain { one: self, two: other }
     }
 
-    fn count(self) -> uint {
+    fn count(self) -> usize {
         let mut count = 0;
         self.run(|_| { count += 1; });
         count
@@ -142,13 +141,13 @@ pub struct Enumerate<I>(I);
 #[derive(Copy, Clone)]
 pub struct Skip<I> {
     iter: I,
-    n: uint
+    n: usize
 }
 
 #[derive(Copy, Clone)]
 pub struct Take<I> {
     iter: I,
-    n: uint
+    n: usize
 }
 
 #[derive(Copy, Clone)]

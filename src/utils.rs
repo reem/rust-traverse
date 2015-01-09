@@ -52,6 +52,7 @@ impl<A: Int + ToPrimitive> Traversal for Range<A> {
     type Item = A;
 
     #[inline]
+    #[allow(unstable)] // `Int::one`
     fn foreach<F>(self, mut f: F) where F: FnMut(A) -> bool {
         let mut i = self.start;
         let one = Int::one();
@@ -80,6 +81,7 @@ impl<A: Int + ToPrimitive> Traversal for RangeInclusive<A> {
     type Item = A;
 
     #[inline]
+    #[allow(unstable)] // `Int::one`
     fn foreach<F>(self, mut f: F) where F: FnMut(A) -> bool {
         let mut i = self.start;
         let one = Int::one();
@@ -109,6 +111,7 @@ impl<A: Int> Traversal for RangeStep<A> {
     type Item = A;
 
     #[inline]
+    #[allow(unstable)] // `Int::zero`
     fn foreach<F>(self, mut f: F) where F: FnMut(A) -> bool {
         let mut i = self.start;
         // branch once and duplicate trivial logic for the perf
@@ -148,6 +151,7 @@ impl<A: Int> Traversal for RangeStepInclusive<A> {
     type Item = A;
 
     #[inline]
+    #[allow(unstable)] // `Int::zero`
     fn foreach<F>(self, mut f: F) where F: FnMut(A) -> bool {
         let mut i = self.start;
         // branch once and duplicate trivial logic for the perf

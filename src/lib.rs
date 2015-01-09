@@ -1,5 +1,4 @@
 //#![deny(missing_docs, warnings)]
-#![allow(staged_unstable, staged_experimental)]
 
 //! Proof-of-concept trait for internal iterators.
 

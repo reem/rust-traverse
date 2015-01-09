@@ -14,11 +14,11 @@ impl<'a, T> Traversal for &'a [T] {
             if is_zero_size {
                 for _ in range(0, slice.len) {
                     // Just give some pointer, doesn't matter what.
-                    if f(mem::transmute(1u)) { break }
+                    if f(mem::transmute(1us)) { break }
                 }
             } else {
                 let mut current = slice.data;
-                let end = slice.data.offset(slice.len as int);
+                let end = slice.data.offset(slice.len as isize);
                 while current != end {
                     if f(mem::transmute(current)) { break }
                     current = current.offset(1);
@@ -41,11 +41,11 @@ impl<'a, T> Traversal for &'a mut [T] {
             if is_zero_size {
                 for _ in range(0, slice.len) {
                     // Just give some pointer, doesn't matter what.
-                    if f(mem::transmute(1u)) { break }
+                    if f(mem::transmute(1us)) { break }
                 }
             } else {
                 let mut current = slice.data;
-                let end = slice.data.offset(slice.len as int);
+                let end = slice.data.offset(slice.len as isize);
                 while current != end {
                     if f(mem::transmute(current)) { break }
                     current = current.offset(1);
@@ -63,8 +63,8 @@ mod test {
 
     #[test]
     fn test_basic() {
-        let data = [1u, 2, 5, 4, 6, 7];
-        let traversal: Vec<uint> = data.as_slice().map(|&x| x).collect();
+        let data = [1us, 2, 5, 4, 6, 7];
+        let traversal: Vec<usize> = data.as_slice().map(|&x| x).collect();
         assert_eq!(&*traversal, data.as_slice());
     }
 
@@ -79,7 +79,7 @@ mod test {
     fn bench_internal (bench: &mut Bencher) {
         use std::rand::random;
 
-        let data: Vec<uint> = range(0, 10000).map(|_| random()).collect();
+        let data: Vec<usize> = range(0, 10000).map(|_| random()).collect();
         bench.iter(|| {
             data.as_slice().run(|&: x| ::test::black_box(x));
         });
@@ -89,7 +89,7 @@ mod test {
     fn bench_external (bench: &mut Bencher) {
         use std::rand::random;
 
-        let data: Vec<uint> = range(0, 10000).map(|_| random()).collect();
+        let data: Vec<usize> = range(0, 10000).map(|_| random()).collect();
         bench.iter(|| {
             for datum in data.as_slice().iter() {
                 ::test::black_box(datum);

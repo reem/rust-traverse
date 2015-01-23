@@ -63,15 +63,15 @@ mod test {
     #[test]
     fn test_basic() {
         let data = [1us, 2, 5, 4, 6, 7];
-        let traversal: Vec<usize> = data.as_slice().map(|&x| x).collect();
-        assert_eq!(&*traversal, data.as_slice());
+        let traversal: Vec<usize> = data.map(|&x| x).collect();
+        assert_eq!(traversal, data);
     }
 
     #[test]
     fn test_zero_size() {
         let data = [(), (), ()];
-        let traversal: Vec<()> = data.as_slice().map(|&x| x).collect();
-        assert_eq!(&*traversal, data.as_slice());
+        let traversal: Vec<()> = data.map(|&x| x).collect();
+        assert_eq!(traversal, data);
     }
 
     #[bench]
@@ -80,7 +80,7 @@ mod test {
 
         let data: Vec<usize> = (0..10000).map(|_| random()).collect();
         bench.iter(|| {
-            data.as_slice().run(|&: x| ::test::black_box(x));
+            data.run(|&: x| { ::test::black_box(x); });
         });
     }
 
@@ -90,7 +90,7 @@ mod test {
 
         let data: Vec<usize> = (0..10000).map(|_| random()).collect();
         bench.iter(|| {
-            for datum in data.as_slice().iter() {
+            for datum in data.iter() {
                 ::test::black_box(datum);
             }
         });

@@ -80,7 +80,7 @@ mod test {
 
         let data: Vec<usize> = (0..10000).map(|_| random()).collect();
         bench.iter(|| {
-            data.as_slice().run(|&: x| ::test::black_box(x));
+            data.as_slice().run(|&: x| { ::test::black_box(x); });
         });
     }
 

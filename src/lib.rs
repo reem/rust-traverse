@@ -1,5 +1,9 @@
 //#![deny(missing_docs, warnings)]
 
+#![cfg_attr(test, feature(test))]
+
+#![feature(core)]
+
 //! Proof-of-concept trait for internal iterators.
 
 #[cfg(test)]
@@ -108,7 +112,7 @@ pub struct Internal<I> {
 impl<I: Iterator> Traversal for Internal<I> {
     type Item = I::Item;
 
-    fn foreach<F>(mut self, mut f: F) where F: FnMut(I::Item) -> bool {
+    fn foreach<F>(self, mut f: F) where F: FnMut(I::Item) -> bool {
         for elem in self.iter {
             if f(elem) { break }
         }

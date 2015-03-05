@@ -14,7 +14,7 @@ impl<'a, T> Traversal for &'a [T] {
             if is_zero_size {
                 for _ in 0..slice.len {
                     // Just give some pointer, doesn't matter what.
-                    if f(mem::transmute(1us)) { break }
+                    if f(mem::transmute(1usize)) { break }
                 }
             } else {
                 let mut current = slice.data;
@@ -41,7 +41,7 @@ impl<'a, T> Traversal for &'a mut [T] {
             if is_zero_size {
                 for _ in 0..slice.len {
                     // Just give some pointer, doesn't matter what.
-                    if f(mem::transmute(1us)) { break }
+                    if f(mem::transmute(1usize)) { break }
                 }
             } else {
                 let mut current = slice.data;
@@ -62,7 +62,7 @@ mod test {
 
     #[test]
     fn test_basic() {
-        let data = [1us, 2, 5, 4, 6, 7];
+        let data = [1, 2, 5, 4, 6, 7];
         let traversal: Vec<usize> = data.map(|&x| x).collect();
         assert_eq!(traversal, data);
     }
@@ -76,17 +76,17 @@ mod test {
 
     #[bench]
     fn bench_internal (bench: &mut Bencher) {
-        use std::rand::random;
+        use rand::random;
 
         let data: Vec<usize> = (0..10000).map(|_| random()).collect();
         bench.iter(|| {
-            data.run(|&: x| { ::test::black_box(x); });
+            data.run(|x| { ::test::black_box(x); });
         });
     }
 
     #[bench]
     fn bench_external (bench: &mut Bencher) {
-        use std::rand::random;
+        use rand::random;
 
         let data: Vec<usize> = (0..10000).map(|_| random()).collect();
         bench.iter(|| {

@@ -1,6 +1,7 @@
 use Traversal;
-use std::num::{Int, ToPrimitive};
 use std::ops::Add;
+
+use num::traits::PrimInt;
 
 /// An infinite iterator starting at `start` and advancing by `step` with each
 /// iteration
@@ -43,18 +44,18 @@ pub struct Range<A> {
 /// Returns an iterator over the given range [start, stop) (that is, starting
 /// at start (inclusive), and ending at stop (exclusive)).
 #[inline]
-pub fn range<A: Int>(start: A, stop: A) -> Range<A> {
+pub fn range<A: PrimInt>(start: A, stop: A) -> Range<A> {
     Range { start: start, stop: stop }
 }
 
 // FIXME: rust-lang/rust#10414: Unfortunate type bound
-impl<A: Int + ToPrimitive> Traversal for Range<A> {
+impl<A: PrimInt> Traversal for Range<A> {
     type Item = A;
 
     #[inline]
     fn foreach<F>(self, mut f: F) where F: FnMut(A) -> bool {
         let mut i = self.start;
-        let one = Int::one();
+        let one = A::one();
         while i < self.stop {
             let old = i;
             i = old + one;
@@ -72,17 +73,17 @@ pub struct RangeInclusive<A> {
 
 /// Return an iterator over the range [start, stop]
 #[inline]
-pub fn range_inclusive<A: Int>(start: A, stop: A) -> RangeInclusive<A> {
+pub fn range_inclusive<A: PrimInt>(start: A, stop: A) -> RangeInclusive<A> {
     RangeInclusive { start: start, stop: stop }
 }
 
-impl<A: Int + ToPrimitive> Traversal for RangeInclusive<A> {
+impl<A: PrimInt> Traversal for RangeInclusive<A> {
     type Item = A;
 
     #[inline]
     fn foreach<F>(self, mut f: F) where F: FnMut(A) -> bool {
         let mut i = self.start;
-        let one = Int::one();
+        let one = A::one();
         while i <= self.stop {
             let old = i;
             i = old + one;
@@ -101,28 +102,28 @@ pub struct RangeStep<A> {
 
 /// Return an iterator over the range [start, stop) by `step`. It handles overflow by stopping.
 #[inline]
-pub fn range_step<A: Int>(start: A, stop: A, step: A) -> RangeStep<A> {
+pub fn range_step<A: PrimInt>(start: A, stop: A, step: A) -> RangeStep<A> {
     RangeStep { start: start, stop: stop, step: step }
 }
 
-impl<A: Int> Traversal for RangeStep<A> {
+impl<A: PrimInt> Traversal for RangeStep<A> {
     type Item = A;
 
     #[inline]
     fn foreach<F>(self, mut f: F) where F: FnMut(A) -> bool {
         let mut i = self.start;
         // branch once and duplicate trivial logic for the perf
-        if self.step > Int::zero() {
+        if self.step > A::zero() {
             while i < self.stop {
                 let old = i;
-                let temp = i.checked_add(self.step);
+                let temp = i.checked_add(&self.step);
                 if f(old) { return; }
                 i = match temp { None => return, Some(x) => x }
             }
         } else {
             while i > self.stop {
                 let old = i;
-                let temp = i.checked_add(self.step);
+                let temp = i.checked_add(&self.step);
                 if f(old) { return; }
                 i = match temp { None => return, Some(x) => x }
             }
@@ -140,28 +141,28 @@ pub struct RangeStepInclusive<A> {
 
 /// Return an iterator over the range [start, stop] by `step`. It handles overflow by stopping.
 #[inline]
-pub fn range_step_inclusive<A: Int>(start: A, stop: A, step: A) -> RangeStepInclusive<A> {
+pub fn range_step_inclusive<A: PrimInt>(start: A, stop: A, step: A) -> RangeStepInclusive<A> {
     RangeStepInclusive { start: start, stop: stop, step: step }
 }
 
-impl<A: Int> Traversal for RangeStepInclusive<A> {
+impl<A: PrimInt> Traversal for RangeStepInclusive<A> {
     type Item = A;
 
     #[inline]
     fn foreach<F>(self, mut f: F) where F: FnMut(A) -> bool {
         let mut i = self.start;
         // branch once and duplicate trivial logic for the perf
-        if self.step > Int::zero() {
+        if self.step > A::zero() {
             while i <= self.stop {
                 let old = i;
-                let temp = i.checked_add(self.step);
+                let temp = i.checked_add(&self.step);
                 if f(old) { return; }
                 i = match temp { None => return, Some(x) => x }
             }
         } else {
             while i >= self.stop {
                 let old = i;
-                let temp = i.checked_add(self.step);
+                let temp = i.checked_add(&self.step);
                 if f(old) { return; }
                 i = match temp { None => return, Some(x) => x }
             }

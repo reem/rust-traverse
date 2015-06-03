@@ -12,6 +12,9 @@ extern crate test;
 #[cfg(test)]
 extern crate rand;
 
+// For CheckedAdd
+extern crate num;
+
 /// An iterator that runs all at once
 pub trait Traversal: Sized {
     type Item;

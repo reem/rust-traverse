@@ -1,4 +1,4 @@
--use super::*;
+use super::*;
 use std::ops::Deref;
 
 impl<I: Traversal, F: FnMut<(I::Item,)>>

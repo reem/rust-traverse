@@ -1,4 +1,4 @@
-use super::*;
+-use super::*;
 use std::ops::Deref;
 
 impl<I: Traversal, F: FnMut<(I::Item,)>>
@@ -65,7 +65,7 @@ Traversal for Skip<I> {
         self.iter.foreach(|t| {
             if counter != n {
                 counter += 1;
-                true
+                false
             } else {
                 f(t)
             }
@@ -86,7 +86,7 @@ Traversal for Take<I> {
                 counter += 1;
                 f(t)
             } else {
-                true
+                false
             }
         })
     }

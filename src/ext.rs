@@ -86,7 +86,7 @@ Traversal for Take<I> {
                 counter += 1;
                 f(t)
             } else {
-                false
+                true
             }
         })
     }

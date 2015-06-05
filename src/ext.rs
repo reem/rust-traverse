@@ -1,7 +1,7 @@
 use super::*;
 use std::ops::Deref;
 
-impl<I: Traversal, F: FnMut<(I::Item,)>>
+impl<I: Traversal, O, F: FnMut(I::Item) -> O>
 Traversal for Map<I, F> {
     type Item = F::Output;
 
@@ -101,11 +101,13 @@ Traversal for SkipWhile<I, F> {
         let mut flag = false;
         self.iter.foreach(move |t| {
             // Done skipping
-            if flag {
-                if !predicate(&t) {
+            if !flag {
+                if predicate(&t) {
+                    false
+                } else {
                     flag = true;
+                    f(t)
                 }
-                false
             } else {
                 f(t)
             }
@@ -156,12 +158,12 @@ Traversal for Chain<I, O> {
     }
 }
 
-impl<I: Traversal, F: FnMut<(I::Item,)>>
-Traversal for FlatMap<I, F>
-where  F::Output: Traversal, {
+impl<I: Traversal, O: Traversal, F: FnMut(I::Item) -> O>
+Traversal for FlatMap<I, F> {
     type Item = <F::Output as Traversal>::Item;
 
-    fn foreach<F1>(self, mut f: F1) where F1: FnMut(<Self as Traversal>::Item) -> bool {
+    fn foreach<F1>(self, mut f: F1)
+    where F1: FnMut(Self::Item) -> bool {
         let mut producer = self.producer;
         let mut flag = false;
         self.iter.foreach(|t| {
@@ -179,9 +181,88 @@ where I::Item: Deref,
       <I::Item as Deref>::Target: Clone {
     type Item = <I::Item as Deref>::Target;
 
-    fn foreach<F>(self, mut f: F) where F: FnMut(<Self as Traversal>::Item) -> bool {
+    fn foreach<F>(self, mut f: F) where F: FnMut(Self::Item) -> bool {
         self.iter.foreach(|d| {
             f(d.deref().clone())
         });
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use utils::*;
+    use Traversal;
+
+    #[test]
+    fn map() {
+        let vec: Vec<_> = range(0, 5).map(|x| x * 2).collect();
+        assert_eq!(vec, &[0, 2, 4, 6, 8]);
+    }
+
+    #[test]
+    fn filter() {
+        let vec: Vec<_> = range(0, 10).filter(|x| x % 2 == 0).collect();
+        assert_eq!(vec, &[0, 2, 4, 6, 8]);
+    }
+
+    #[test]
+    fn filter_map() {
+        let vec: Vec<_> = range(0, 10).filter_map(|x| if x % 2 == 0 {
+            Some(x / 2)
+        } else {
+            None
+        }).collect();
+        assert_eq!(vec, &[0, 1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn enumerate() {
+        let vec: Vec<_> = range(1, 5).enumerate().collect();
+        assert_eq!(vec, &[(0, 1), (1, 2), (2, 3), (3, 4)]);
+    }
+
+    #[test]
+    fn take() {
+        let vec: Vec<_> = range(0, 10).take(5).collect();
+        assert_eq!(vec, &[0, 1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn skip() {
+        let vec: Vec<_> = range(0, 10).skip(5).collect();
+        assert_eq!(vec, &[5, 6, 7, 8, 9]);
+    }
+
+    #[test]
+    fn take_while() {
+        let vec: Vec<_> = range(0, 10).take_while(|&x| x < 5).collect();
+        assert_eq!(vec, &[0, 1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn skip_while() {
+        let vec: Vec<_> = range(0, 10).skip_while(|&x| x < 5).collect();
+        assert_eq!(vec, &[5, 6, 7, 8, 9]);
+    }
+
+    #[test]
+    fn inspect() {
+        let mut x = 0;
+        let vec: Vec<_> = range(0, 5).inspect(|&y| x += y).collect();
+        assert_eq!(vec, &[0, 1, 2, 3, 4]);
+        assert_eq!(x, 10);
+    }
+
+    #[test]
+    fn chain() {
+        let vec: Vec<_> = range(5, 10).chain(range(0, 5)).collect();
+        assert_eq!(vec, &[5, 6, 7, 8, 9, 0, 1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn cloned() {
+        let x = 0;
+        let vec: Vec<_> = repeat(&x).cloned().take(5).collect();
+        assert_eq!(vec, &[0, 0, 0, 0, 0]);
     }
 }

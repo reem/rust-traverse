@@ -1,16 +1,10 @@
 //#![deny(missing_docs, warnings)]
 
-#![cfg_attr(test, feature(test))]
-
-#![feature(core)]
-#![feature(unboxed_closures)]
-
 //! Proof-of-concept trait for internal iterators.
 
-#[cfg(test)]
-extern crate test;
-#[cfg(test)]
-extern crate rand;
+#![cfg_attr(all(test, feature = "nightly"), feature(test))]
+#[cfg(all(test, feature = "nightly"))] extern crate test;
+#[cfg(all(test, feature = "nightly"))] extern crate rand;
 
 // For CheckedAdd
 extern crate num;
@@ -30,6 +24,8 @@ pub trait Traversal: Sized {
     fn run<F>(self, mut f: F) where F: FnMut(Self::Item) {
         self.foreach(|t| { f(t); false })
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) { (0, None) }
 
     fn map<F, O>(self, f: F) -> Map<Self, F>
     where F: FnMut(Self::Item) -> O {
@@ -59,12 +55,12 @@ pub trait Traversal: Sized {
     }
 
     fn skip_while<F>(self, pred: F) -> SkipWhile<Self, F>
-    where F: FnMut(Self::Item) -> bool {
+    where F: FnMut(&Self::Item) -> bool {
         SkipWhile { iter: self, predicate: pred }
     }
 
     fn take_while<F>(self, pred: F) -> TakeWhile<Self, F>
-    where F: FnMut(Self::Item) -> bool {
+    where F: FnMut(&Self::Item) -> bool {
         TakeWhile { iter: self, predicate: pred }
     }
 
@@ -96,26 +92,37 @@ pub trait Traversal: Sized {
 
     fn collect<D>(self) -> D
     where D: FromTraversal<Self::Item> {
-        FromTraversal::collect(self)
+        FromTraversal::from_traversal(self)
     }
 }
 
 pub trait FromTraversal<T> {
-    fn collect<I: Traversal<Item=T>>(I) -> Self;
+    fn from_traversal<I: IntoTraversal<Item=T>>(traversable: I) -> Self;
 }
 
 pub trait IntoTraversal {
-    fn into_traversal(self) -> Internal<Self>;
+    type IntoTrav: Traversal<Item=Self::Item>;
+    type Item;
+    fn into_traversal(self) -> Self::IntoTrav;
 }
 
-impl<I: Iterator> IntoTraversal for I {
-    fn into_traversal(self) -> Internal<I> {
-        Internal { iter: self }
+impl<T: Traversal> IntoTraversal for T {
+    type IntoTrav = Self;
+    type Item = <Self as Traversal>::Item;
+
+    fn into_traversal(self) -> Self::IntoTrav {
+        self
     }
 }
 
 pub struct Internal<I> {
     iter: I
+}
+
+impl<I: Iterator> Internal<I> {
+    pub fn new<It: IntoIterator<IntoIter=I,Item=I::Item>>(iterable: It) -> Self {
+        Internal { iter: iterable.into_iter() }
+    }
 }
 
 impl<I: Iterator> Traversal for Internal<I> {
@@ -199,5 +206,5 @@ pub struct Cloned<I> {
 }
 
 mod ext;
-mod impls;
 pub mod utils;
+mod impls;

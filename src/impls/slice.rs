@@ -12,7 +12,7 @@ impl<'a, T> Traversal for &'a [T] {
             let is_zero_size = mem::size_of::<T>() == 0;
 
             if is_zero_size {
-                for _ in 0..slice.len {
+                for _ in 0..slice.len() {
                     // Just give some pointer, doesn't matter what.
                     if f(mem::transmute(1usize)) { break }
                 }
@@ -58,7 +58,6 @@ impl<'a, T> Traversal for &'a mut [T] {
 #[cfg(test)]
 mod test {
     use Traversal;
-    use test::Bencher;
 
     #[test]
     fn test_basic() {
@@ -73,6 +72,13 @@ mod test {
         let traversal: Vec<()> = data.map(|&x| x).collect();
         assert_eq!(traversal, data);
     }
+}
+
+#[cfg(all(test, feature = "nightly"))]
+mod bench {
+
+    use Traversal;
+    use test::Bencher;
 
     #[bench]
     fn bench_internal (bench: &mut Bencher) {

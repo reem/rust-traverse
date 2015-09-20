@@ -1,5 +1,5 @@
-use std::{mem, raw};
-use {Traversal};
+use std::mem;
+use Traversal;
 
 impl<'a, T> Traversal for &'a [T] {
     type Item = &'a T;
@@ -7,18 +7,19 @@ impl<'a, T> Traversal for &'a [T] {
     #[inline]
     fn foreach<F>(self, mut f: F) where F: FnMut(&'a T) -> bool {
         unsafe {
-            let slice = mem::transmute::<&'a [T], raw::Slice<T>>(self);
+            let ptr = self.as_ptr();
+            let len = self.len();
 
             let is_zero_size = mem::size_of::<T>() == 0;
 
             if is_zero_size {
-                for _ in 0..slice.len() {
+                for _ in 0..len {
                     // Just give some pointer, doesn't matter what.
                     if f(mem::transmute(1usize)) { break }
                 }
             } else {
-                let mut current = slice.data;
-                let end = slice.data.offset(slice.len as isize);
+                let mut current = ptr;
+                let end = ptr.offset(len as isize);
                 while current != end {
                     if f(mem::transmute(current)) { break }
                     current = current.offset(1);
@@ -34,18 +35,19 @@ impl<'a, T> Traversal for &'a mut [T] {
     #[inline]
     fn foreach<F>(self, mut f: F) where F: FnMut(&'a mut T) -> bool {
         unsafe {
-            let slice = mem::transmute::<&'a mut [T], raw::Slice<T>>(self);
+            let ptr = self.as_mut_ptr();
+            let len = self.len();
 
             let is_zero_size = mem::size_of::<T>() == 0;
 
             if is_zero_size {
-                for _ in 0..slice.len {
+                for _ in 0..len {
                     // Just give some pointer, doesn't matter what.
                     if f(mem::transmute(1usize)) { break }
                 }
             } else {
-                let mut current = slice.data;
-                let end = slice.data.offset(slice.len as isize);
+                let mut current = ptr;
+                let end = ptr.offset(len as isize);
                 while current != end {
                     if f(mem::transmute(current)) { break }
                     current = current.offset(1);

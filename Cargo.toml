@@ -12,4 +12,5 @@ license = "MIT/Apache-2.0"
 [dependencies.num]
 
 [dev-dependencies]
-rand="*"
+quickcheck = "*"
+rand = "*"

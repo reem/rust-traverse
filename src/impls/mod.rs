@@ -58,4 +58,3 @@ impl<K: Ord, V> FromTraversal<(K, V)> for BTreeMap<K, V> {
 		new
 	}
 }
-

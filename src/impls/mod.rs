@@ -3,17 +3,7 @@ use std::hash::Hash;
 use super::*;
 
 mod slice;
-
-impl<T> FromTraversal<T> for Vec<T> {
-	fn from_traversal<I: IntoTraversal<Item=T>>(traversable: I) -> Self {
-		let trav = traversable.into_traversal();
-		let mut new = Self::with_capacity(trav.size_hint().0);
-		trav.run(|elem| {
-			new.push(elem);
-		});
-		new
-	}
-}
+mod vec;
 
 impl<T> FromTraversal<T> for VecDeque<T> {
 	fn from_traversal<I: IntoTraversal<Item=T>>(traversable: I) -> Self {

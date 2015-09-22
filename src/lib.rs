@@ -9,6 +9,10 @@
 // For CheckedAdd
 extern crate num;
 
+mod ext;
+pub mod utils;
+mod impls;
+
 /// An iterator that runs all at once
 pub trait Traversal: Sized {
     type Item;
@@ -204,7 +208,3 @@ pub struct FlatMap<I, F> {
 pub struct Cloned<I> {
     iter: I,
 }
-
-mod ext;
-pub mod utils;
-mod impls;

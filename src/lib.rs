@@ -84,6 +84,26 @@ pub trait Traversal: Sized {
         Chain { one: self, two: other }
     }
 
+    fn any<P>(self, mut predicate: P) -> bool where P: FnMut(Self::Item) -> bool {
+        let mut result = false;
+        self.foreach(|item| {
+            let this = predicate(item);
+            result |= this;
+            this
+        });
+        result
+    }
+
+    fn all<P>(self, mut predicate: P) -> bool where P: FnMut(Self::Item) -> bool {
+        let mut result = true;
+        self.foreach(|item| {
+            let this = predicate(item);
+            result &= this;
+            !this
+        });
+        result
+    }
+
     fn count(self) -> usize {
         let mut count = 0;
         self.run(|_| { count += 1; });
@@ -207,4 +227,16 @@ pub struct FlatMap<I, F> {
 #[derive(Copy, Clone)]
 pub struct Cloned<I> {
     iter: I,
+}
+
+#[test]
+fn test_any() {
+    assert!(Internal::new(&[1, 2, 3, 4]).cloned().any(|i| i > 3));
+    assert!(!Internal::new(&[1, 2, 3, 4]).cloned().any(|i| i > 4));
+}
+
+#[test]
+fn test_all() {
+    assert!(Internal::new(&[1, 2, 3, 4]).cloned().all(|i| i < 5));
+    assert!(!Internal::new(&[1, 2, 3, 4]).cloned().all(|i| i < 4));
 }
